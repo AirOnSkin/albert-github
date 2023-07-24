@@ -107,7 +107,7 @@ class Plugin(TriggerQueryHandler):
       query.add(Item(id=md_id,
                      text=md_name,
                      icon=self.icon,
-                     subtext="Press [enter] to initialize the repository cache",
+                     subtext="Press [enter] to initialize the repository cache (may take a few seconds)",
                      actions=[Action("cache", "Create repository cache", lambda: self.cache_repositories(self.get_user_repositories(token)))]))
 
     query_stripped = query.string.strip()
@@ -119,7 +119,7 @@ class Plugin(TriggerQueryHandler):
         query.add(Item(id=md_id,
                        text=md_name,
                        icon=self.icon,
-                       subtext="Press [enter] to refresh the local repository cache",
+                       subtext="Press [enter] to refresh the local repository cache (may take a few seconds)",
                        actions=[Action("refresh", "Refresh repository cache", lambda: self.cache_repositories(self.get_user_repositories(token)))]))
 
       if not repositories:
