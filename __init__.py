@@ -167,4 +167,5 @@ class Plugin(TriggerQueryHandler):
     else:
       query.add(Item(id=md_id,
                      icon=self.icon,
+                     text="...",
                      subtext="Search for a GitHub user repository name"))
