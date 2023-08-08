@@ -8,6 +8,7 @@ Refresh cache with 'gh refresh cache'.
 
 import os
 import json
+import keyring
 from albert import *
 from github import Github
 from rapidfuzz import fuzz
@@ -19,10 +20,9 @@ md_description = "Open GitHub user repositories in the browser"
 md_license = "GPL-3.0"
 md_url = "https://github.com/aironskin/albert-github"
 md_maintainers = "@aironskin"
-md_lib_dependencies = ["github", "rapidfuzz"]
+md_lib_dependencies = ["github", "rapidfuzz", "keyring"]
 
 plugin_dir = os.path.dirname(__file__)
-TOKEN_FILE = os.path.join(plugin_dir, "github_token.txt")
 CACHE_FILE = os.path.join(plugin_dir, "repository_cache.json")
 
 class Plugin(TriggerQueryHandler):
@@ -42,16 +42,12 @@ class Plugin(TriggerQueryHandler):
     return "gh "
 
   def save_token(self, token):
-    # Save the token in a file
-    with open(TOKEN_FILE, "w") as file:
-      file.write(token)
+    # Save the token in the keyring
+    keyring.set_password("albert-github", "github_token", token)
 
   def load_token(self):
-    # Load the token from the file if it exists
-    if os.path.exists(TOKEN_FILE):
-      with open(TOKEN_FILE, "r") as file:
-        return file.read().strip()
-    return None
+    # Load the token from the keyring
+    return keyring.get_password("albert-github", "github_token")
 
   def get_user_repositories(self, token):
     # Fetch user repositories from GitHub using the provided token
