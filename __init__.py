@@ -14,7 +14,7 @@ from github import Github
 from rapidfuzz import fuzz
 
 md_iid = '1.0'
-md_version = "0.1"
+md_version = "1.0"
 md_name = "GitHub repositories"
 md_description = "Open GitHub user repositories in the browser"
 md_license = "GPL-3.0"
