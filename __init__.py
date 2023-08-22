@@ -9,12 +9,13 @@ Refresh cache with 'gh refresh cache'.
 import os
 import json
 import keyring
+from pathlib import Path
 from albert import *
 from github import Github
 from rapidfuzz import fuzz
 
-md_iid = '1.0'
-md_version = "1.0"
+md_iid = '2.0'
+md_version = "1.1"
 md_name = "GitHub repositories"
 md_description = "Open GitHub user repositories in the browser"
 md_license = "GPL-3.0"
@@ -25,21 +26,16 @@ md_lib_dependencies = ["github", "rapidfuzz", "keyring"]
 plugin_dir = os.path.dirname(__file__)
 CACHE_FILE = os.path.join(plugin_dir, "repository_cache.json")
 
-class Plugin(TriggerQueryHandler):
+class Plugin(PluginInstance, TriggerQueryHandler):
 
-  icon = [os.path.dirname(__file__) + "/plugin.svg"]
-
-  def id(self):
-    return md_id
-
-  def name(self):
-    return md_name
-
-  def description(self):
-    return md_description
-
-  def defaultTrigger(self):
-    return "gh "
+  def __init__(self):
+    TriggerQueryHandler.__init__(self,
+                                 id=md_id,
+                                 name=md_name,
+                                 description=md_description,
+                                 defaultTrigger='gh ')
+    PluginInstance.__init__(self, extensions=[self])
+    self.iconUrls = [f"file:{Path(__file__).parent}/plugin.svg"]
 
   def save_token(self, token):
     # Save the token in the keyring
@@ -91,18 +87,18 @@ class Plugin(TriggerQueryHandler):
     # Load GitHub user token
     token = self.load_token()
     if not token:
-      query.add(Item(id=md_id,
+      query.add(StandardItem(id=md_id,
                      text=md_name,
-                     icon=self.icon,
+                     iconUrls=self.iconUrls,
                      subtext="Paste your GitHub token and press [enter] to save it",
                      actions=[Action("save", "Save token", lambda t=query.string.strip(): self.save_token(t))]))
 
     # Load the repositories from cache or fetch them from GitHub
     repositories = self.load_cached_repositories()
     if not repositories:
-      query.add(Item(id=md_id,
+      query.add(StandardItem(id=md_id,
                      text=md_name,
-                     icon=self.icon,
+                     iconUrls=self.iconUrls,
                      subtext="Press [enter] to initialize the repository cache (may take a few seconds)",
                      actions=[Action("cache", "Create repository cache", lambda: self.cache_repositories(self.get_user_repositories(token)))]))
 
@@ -112,9 +108,9 @@ class Plugin(TriggerQueryHandler):
 
       # Refresh local repositories cache
       if query_stripped.lower() == "refresh cache":
-        query.add(Item(id=md_id,
+        query.add(StandardItem(id=md_id,
                        text=md_name,
-                       icon=self.icon,
+                       iconUrls=self.iconUrls,
                        subtext="Press [enter] to refresh the local repository cache (may take a few seconds)",
                        actions=[Action("refresh", "Refresh repository cache", lambda: self.cache_repositories(self.get_user_repositories(token)))]))
 
@@ -140,28 +136,28 @@ class Plugin(TriggerQueryHandler):
 
       results = []
       for repo in exact_matches:
-        results.append(Item(id=md_id,
+        results.append(StandardItem(id=md_id,
                             text=repo["name"],
-                            icon=self.icon,
+                            iconUrls=self.iconUrls,
                             subtext=repo["full_name"],
                             actions=[Action("eopen", "Open exact match", lambda u=repo["html_url"]: openUrl(u))]))
 
       for repo, similarity_ratio in fuzzy_matches:
-        results.append(Item(id=md_id,
+        results.append(StandardItem(id=md_id,
                             text=repo["name"],
-                            icon=self.icon,
+                            iconUrls=self.iconUrls,
                             subtext=repo["full_name"],
                             actions=[Action("fopen", "Open fuzzy match", lambda u=repo["html_url"]: openUrl(u))]))
 
       if results:
         query.add(results)
       else:
-        query.add(Item(id=md_id,
+        query.add(StandardItem(id=md_id,
                        text="No repositories matching search string",
-                       icon=self.icon))
+                       iconUrls=self.iconUrls))
 
     else:
-      query.add(Item(id=md_id,
-                     icon=self.icon,
+      query.add(StandardItem(id=md_id,
+                     iconUrls=self.iconUrls,
                      text="...",
                      subtext="Search for a GitHub user repository name"))
