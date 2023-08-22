@@ -9,8 +9,8 @@ Refresh cache with 'gh refresh cache'.
 import os
 import json
 import keyring
-from pathlib import Path
 from albert import *
+from pathlib import Path
 from github import Github
 from rapidfuzz import fuzz
 
