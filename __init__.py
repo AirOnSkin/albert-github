@@ -11,17 +11,17 @@ import json
 import keyring
 from albert import *
 from pathlib import Path
-from github import Github
+import github3
 from rapidfuzz import fuzz
 
 md_iid = '2.0'
-md_version = "1.1"
+md_version = "1.2"
 md_name = "GitHub repositories"
 md_description = "Open GitHub user repositories in the browser"
 md_license = "GPL-3.0"
 md_url = "https://github.com/aironskin/albert-github"
 md_maintainers = "@aironskin"
-md_lib_dependencies = ["github", "rapidfuzz", "keyring"]
+md_lib_dependencies = ["github3.py", "rapidfuzz", "keyring"]
 
 plugin_dir = os.path.dirname(__file__)
 CACHE_FILE = os.path.join(plugin_dir, "repository_cache.json")
@@ -48,10 +48,10 @@ class Plugin(PluginInstance, TriggerQueryHandler):
 
     def get_user_repositories(self, token):
         # Fetch user repositories from GitHub using the provided token
-        g = Github(token)
-        user = g.get_user()
+        g = github3.login(token=token)
+        user = g.me()
         repositories = []
-        for repo in user.get_repos():
+        for repo in user.repositories():
             repositories.append(
                 {
                     "name": repo.name,
