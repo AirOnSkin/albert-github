@@ -20,7 +20,7 @@ md_name = "GitHub repositories"
 md_description = "Open GitHub user repositories in the browser"
 md_license = "GPL-3.0"
 md_url = "https://github.com/aironskin/albert-github"
-md_maintainers = "@aironskin"
+md_authors = "@aironskin"
 md_lib_dependencies = ["github3.py", "rapidfuzz", "keyring"]
 
 plugin_dir = os.path.dirname(__file__)
@@ -35,7 +35,7 @@ class Plugin(PluginInstance, TriggerQueryHandler):
                                      name=md_name,
                                      description=md_description,
                                      defaultTrigger='gh ')
-        PluginInstance.__init__(self, extensions=[self])
+        PluginInstance.__init__(self)
         self.iconUrls = [f"file:{Path(__file__).parent}/plugin.svg"]
 
     def save_token(self, token):
@@ -51,7 +51,8 @@ class Plugin(PluginInstance, TriggerQueryHandler):
         g = github3.login(token=token)
         user = g.me()
         repositories = []
-        for repo in user.repositories():
+
+        for repo in g.repositories():
             repositories.append(
                 {
                     "name": repo.name,
@@ -59,6 +60,10 @@ class Plugin(PluginInstance, TriggerQueryHandler):
                     "html_url": repo.html_url,
                 }
             )
+
+        # Sort repositories by name
+        repositories.sort(key=lambda repo: repo["name"].lower())
+
         return repositories
 
     def cache_repositories(self, repositories):
